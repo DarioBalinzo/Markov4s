@@ -1,6 +1,6 @@
 package com.github.dariobalinzo.makrov4s
 
-import com.github.dariobalinzo.markov4s.{ChainBuilder, MarkovChain, MarkovNode, OutgoingLink, Training}
+import com.github.dariobalinzo.markov4s._
 import junit.framework.TestCase.assertEquals
 import org.junit.{Rule, _}
 
@@ -59,9 +59,15 @@ class Markov4sTestSuite {
   @Rule def individualTestTimeout = new org.junit.rules.Timeout(1 * 1000)
 
   @Test def `should train a markov chain`: Unit = {
-    val training = new Training[String]()
-    val chain = training.train(Seq("ciao", "hello", "test", "!", "ciao", "!" , "ciao", "!"))
+    val trainingSet = Seq("a", "b", "a", "b", "c", "d", "e", "a", "z")
+    val markovChain = Markov4s.fromSequenceOfSteps(trainingSet)
+    val expected = Map("e" -> MarkovNode(List(OutgoingLink(1.0, "a"))),
+      "a" -> MarkovNode(List(OutgoingLink(0.6666666666666666, "b"), OutgoingLink(0.3333333333333333, "z"))),
+      "b" -> MarkovNode(List(OutgoingLink(0.5, "c"), OutgoingLink(0.5, "a"))),
+      "c" -> MarkovNode(List(OutgoingLink(1.0, "d"))),
+      "z" -> MarkovNode(List(OutgoingLink(1.0, "z"))),
+      "d" -> MarkovNode(List(OutgoingLink(1.0, "e"))))
 
-    assertEquals(1, 1)
+    assertEquals(expected, markovChain.chain)
   }
 }

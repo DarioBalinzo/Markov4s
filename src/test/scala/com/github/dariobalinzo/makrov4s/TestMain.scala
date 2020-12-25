@@ -1,6 +1,6 @@
 package com.github.dariobalinzo.makrov4s
 
-import com.github.dariobalinzo.markov4s.Training
+import com.github.dariobalinzo.markov4s.Markov4s
 
 import scala.util.Random
 
@@ -11,7 +11,7 @@ object TestMain extends App {
   val file = scala.io.Source.fromFile("/home/dario/test.txt")
   val words = file.mkString.split("\\s+").toList.map(_.toLowerCase)
 
-  val training = new Training[String]()
+  val training = new Markov4s[String]()
   val markovChain = training.train(words)
 
   print(markovChain.randomWalk("non", 10).walk.reverse.mkString(" "))

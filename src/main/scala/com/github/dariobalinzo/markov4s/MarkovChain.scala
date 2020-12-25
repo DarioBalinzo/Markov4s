@@ -7,13 +7,16 @@ case class RandomWalkResult[T](currentStep: T, walk: Seq[T])
 
 case class MarkovChain[T](chain: Map[T, MarkovNode[T]])(implicit random: Random) {
   private val keys = chain.keySet
-//  require(
-//    chain.values
-//      .flatMap(_.links)
-//      .map(_.to)
-//      .forall(keys.contains),
-//    "Outgoing link pointing to a non existing node"
-//  )
+
+  val statesPointingToNonExistingState = chain.values
+    .flatMap(_.links)
+    .map(_.to)
+    .filterNot(keys.contains)
+
+  require(
+    statesPointingToNonExistingState.isEmpty,
+    s"Outgoing link pointing to a non existing node: $statesPointingToNonExistingState"
+  )
 
   def randomWalk(startingFrom: T, numberOfSteps: Int): RandomWalkResult[T] = {
     require(numberOfSteps > 0)
