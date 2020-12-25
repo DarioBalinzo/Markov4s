@@ -7,10 +7,10 @@ private case class Link[T](from: T, to: T)
 
 
 private case class To[T](to: T, times: Int) {
-  private[markov4s] def withProb(prob: Double) = ToWithProb(to, prob)
+  private[markov4s] def withProb(prob: Probability) = ToWithProb(to, prob)
 }
 
-private case class ToWithProb[T](to: T, prob: Double) //TODO rational number here
+private case class ToWithProb[T](to: T, prob: Probability)
 
 class Markov4s[T] {
 
@@ -55,11 +55,11 @@ class Markov4s[T] {
 
 
   private def countToProb(total: Map[T, Int], from: T, occurs: Seq[To[T]]): Seq[ToWithProb[T]] = {
-      occurs.map { x =>
-        val totalForX = total(from)
-        val prob = x.times.toDouble / totalForX.toDouble
-        x.withProb(prob)
-      }
+    occurs.map { x =>
+      val totalForX = total(from)
+      val prob = new Probability(x.times, totalForX)
+      x.withProb(prob)
+    }
   }
 
   private def groupLinkByFrom(trainingSet: Seq[T], occurrences: Seq[Link[T]]) = {

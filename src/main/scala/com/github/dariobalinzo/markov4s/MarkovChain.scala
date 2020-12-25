@@ -8,14 +8,14 @@ case class RandomWalkResult[T](currentStep: T, walk: Seq[T])
 case class MarkovChain[T](chain: Map[T, MarkovNode[T]])(implicit random: Random) {
   private val keys = chain.keySet
 
-  val statesPointingToNonExistingState = chain.values
+  private val statesPointingToNonExistingState = chain.values
     .flatMap(_.links)
     .map(_.to)
     .filterNot(keys.contains)
 
   require(
     statesPointingToNonExistingState.isEmpty,
-    s"Outgoing link pointing to a non existing node: $statesPointingToNonExistingState"
+    s"Outgoing links pointing to a non existing node: $statesPointingToNonExistingState"
   )
 
   def randomWalk(startingFrom: T, numberOfSteps: Int): RandomWalkResult[T] = {
@@ -31,7 +31,8 @@ case class MarkovChain[T](chain: Map[T, MarkovNode[T]])(implicit random: Random)
       }
     }
 
-    walk(numberOfSteps - 1, RandomWalkResult(chain(startingFrom).randomStep(random), Seq(startingFrom)))
+    val reverseWalk = walk(numberOfSteps - 1, RandomWalkResult(chain(startingFrom).randomStep(random), Seq(startingFrom)))
+    RandomWalkResult(reverseWalk.currentStep, reverseWalk.walk.reverse)
   }
 
 }
@@ -40,8 +41,8 @@ case class MarkovNode[T](links: Seq[OutgoingLink[T]]) {
   @tailrec
   private[markov4s] final def chooseStep(nextPercent: Double, links: Seq[OutgoingLink[T]]): T = {
     links match {
-      case x :: _ if nextPercent <= x.prob => x.to
-      case x :: xs => chooseStep(nextPercent - x.prob, xs)
+      case x :: _ if nextPercent <= x.prob.toDouble => x.to
+      case x :: xs => chooseStep(nextPercent - x.prob.toDouble, xs)
     }
   }
 
@@ -51,5 +52,5 @@ case class MarkovNode[T](links: Seq[OutgoingLink[T]]) {
   }
 }
 
-case class OutgoingLink[T](prob: Double, to: T)
+case class OutgoingLink[T](prob: Probability, to: T)
 
