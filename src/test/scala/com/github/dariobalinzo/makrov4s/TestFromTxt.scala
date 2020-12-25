@@ -15,8 +15,7 @@ object TestFromTxt extends App {
       .toList
       .map(_.toLowerCase)
 
-    val training = new Markov4s[String]()
-    val markovChain = training.train(words)
+    val markovChain = Markov4s.fromSequenceOfSteps(words)
 
     print(markovChain.randomWalk("non", 10).walk.mkString(" "))
   }

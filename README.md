@@ -11,9 +11,8 @@ Using(scala.io.Source.fromFile("test.txt")) { file =>
       .split("\\s+")
       .toList
       .map(_.toLowerCase)
-
-    val training = new Markov4s[String]()
-    val markovChain = training.train(words)
+  
+    val markovChain = Markov4s.fromSequenceOfSteps(words)
 
     val numberOfSteps = 10
     val randomPhrase = markovChain.randomWalk("scala", numberOfSteps)
