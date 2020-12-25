@@ -7,13 +7,13 @@ case class RandomWalkResult[T](currentStep: T, walk: Seq[T])
 
 case class MarkovChain[T](chain: Map[T, MarkovNode[T]])(implicit random: Random) {
   private val keys = chain.keySet
-  require(
-    chain.values
-      .flatMap(_.links)
-      .map(_.to)
-      .forall(keys.contains),
-    "Outgoing link pointing to a non existing node"
-  )
+//  require(
+//    chain.values
+//      .flatMap(_.links)
+//      .map(_.to)
+//      .forall(keys.contains),
+//    "Outgoing link pointing to a non existing node"
+//  )
 
   def randomWalk(startingFrom: T, numberOfSteps: Int): RandomWalkResult[T] = {
     require(numberOfSteps > 0)
@@ -45,40 +45,6 @@ case class MarkovNode[T](links: Seq[OutgoingLink[T]]) {
   private[markov4s] def randomStep(random: Random) = {
     val nextPercent = random.nextInt(100).toDouble / 100.0
     chooseStep(nextPercent, links)
-  }
-}
-
-case class ChainBuilder[T](chain: Map[T, NodeBuilder[T]] = Map.empty[T, NodeBuilder[T]])(implicit random: Random) {
-
-  def linkTo(from: T, to: T, prob: Double): ChainBuilder[T] = {
-    val chainWithFrom = if (!chain.contains(from)) {
-      chain + (from -> NodeBuilder(from))
-    } else {
-      chain
-    }
-
-    val chainWithTo = if (!chainWithFrom.contains(to)) {
-      chainWithFrom + (to -> NodeBuilder(to))
-    } else {
-      chainWithFrom
-    }
-
-    val fromBuilder = chainWithTo(from)
-    val newFromBuilder = fromBuilder.linkedTo(to, prob)
-    copy((chain - from) + (from -> newFromBuilder))
-  }
-
-  def build(): MarkovChain[T] = {
-    MarkovChain(chain.view.mapValues(_.toNode()).toMap)
-  }
-}
-
-case class NodeBuilder[T](value: T, links: Seq[OutgoingLink[T]] = List.empty) {
-  private[markov4s] def linkedTo(to: T, prob: Double) = copy(links = OutgoingLink(prob, to) +: this.links)
-
-  private[markov4s] def toNode(): MarkovNode[T] = {
-    require(links.map(_.prob).sum == 1.0, "The sum of all the outgoing probabilities should be 1.0")
-    MarkovNode(links.sortBy(_.prob).reverse)
   }
 }
 
