@@ -12,10 +12,11 @@ Using(scala.io.Source.fromFile("test.txt")) { file =>
       .toList
       .map(_.toLowerCase)
   
-    val markovChain = Markov4s.fromSequenceOfSteps(words)
+    val markovChain = Markov4s.fromSequenceOfSteps(sequenceOfWords)
 
     val numberOfSteps = 10
-    val randomPhrase = markovChain.randomWalk("scala", numberOfSteps)
+    val initialState = "scala"
+    val randomPhrase = markovChain.randomWalk(initialState, numberOfSteps)
       .walk
       .mkString(" ")
   }
